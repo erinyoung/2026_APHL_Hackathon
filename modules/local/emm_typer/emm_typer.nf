@@ -27,24 +27,23 @@ process EMM_TYPER {
     PATH=/opt/conda/envs/emmtyper/bin:\$PATH
     export PATH
 
-    emmtyper ${args} \
-      --workflow blast \
-      --cluster-distance 500 \
-      --percent-identity 95 \
-      --culling-limit 5 \
-      --mismatch 4 \
-      --align-diff 5 \
-      --gap 2 \
-      --min-perfect 15 \
-      --min-good 15
-      --max-size 2000 \
-      --output-format 'verbose' \
-      ${contigs} \
-      | tee -a \$log_file \
+    emmtyper ${args} \\
+      --workflow blast \\
+      --cluster-distance 500 \\
+      --percent-identity 95 \\
+      --culling-limit 5 \\
+      --mismatch 4 \\
+      --align-diff 5 \\
+      --gap 2 \\
+      --min-perfect 15 \\
+      --min-good 15 \\
+      --max-size 2000 \\
+      --output-format 'verbose' \\
+      ${contigs} \\
+      | tee -a \$log_file \\
       > ${prefix}_emmtyper.txt
 
     python3 ${script} ${prefix}_emmtyper.txt emmtyper/${prefix}_emmtyper.txt emmtyper ${prefix}
-    awk -F "\t" '{print $4}' {prefix}_emmtyper.tsv > EMM_TYPE
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
