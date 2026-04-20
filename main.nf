@@ -38,8 +38,9 @@ workflow APHL_GAS {
     GAS (
         samplesheet
     )
-    emit:
-    multiqc_report = GAS.out.multiqc_report // channel: /path/to/multiqc_report.html
+    // emit:
+    // multiqc_report = channel.of([]) // channel: /path/to/multiqc_report.html
+    // versions = channel.of([]) // channel: /path/to/versions.yml
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,11 +75,11 @@ workflow {
     //
     // SUBWORKFLOW: Run completion tasks
     //
-    PIPELINE_COMPLETION (
-        params.outdir,
-        params.monochrome_logs,
-        APHL_GAS.out.multiqc_report
-    )
+    // PIPELINE_COMPLETION (
+    //     params.outdir,
+    //     params.monochrome_logs,
+    //     APHL_GAS.out.multiqc_report
+    // )
 }
 
 /*
