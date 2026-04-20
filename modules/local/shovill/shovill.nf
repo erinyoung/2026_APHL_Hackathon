@@ -8,13 +8,13 @@ process SHOVILL {
     tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path("${meta.id}.contigs.fa")                              , emit: contigs
-    tuple val(meta), path("${meta.id}.sam")                                     , emit: sam_files
-    tuple val(meta), path("*_shovill_output/shovill.corrections")                 , emit: corrections
-    tuple val(meta), path("*_shovill_output/shovill.log")                         , emit: log
-    tuple val(meta), path("*_shovill_output/{skesa,spades,megahit,velvet}.fasta") , emit: raw_contigs
-    tuple val(meta), path("*_shovill_output/contigs.{fastg,gfa,LastGraph}")       , optional:true, emit: gfa
-    path "versions.yml"                                                         , emit: versions
+    tuple val(meta), path("${meta.id}.contigs.fa")                                  , emit: contigs
+    tuple val(meta), path("${meta.id}.sam")                                         , emit: sam_files
+    tuple val(meta), path("*_shovill_output/shovill.corrections")                   , emit: corrections
+    tuple val(meta), path("*_shovill_output/shovill.log")                           , emit: log
+    tuple val(meta), path("*_shovill_output/{skesa,spades,megahit,velvet}.fasta")   , emit: raw_contigs
+    tuple val(meta), path("*_shovill_output/contigs.{fastg,gfa,LastGraph}")         , optional:true, emit: gfa
+    path "versions.yml"                                                             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
