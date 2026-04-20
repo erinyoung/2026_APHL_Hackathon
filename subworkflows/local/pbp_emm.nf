@@ -4,8 +4,10 @@ include { EMM_TYPER     } from '../../modules/local/emm_typer/emm_typer'
 
 
 workflow PBP_EMM {
+
     take:
     ch_reads
+    summfle_script
 
     main:
 
@@ -15,27 +17,36 @@ workflow PBP_EMM {
     // SHOVILL: assemble reads into contigs
     //
     SHOVILL (
-        // tuple val(meta), path(reads)
         ch_reads
     )
-    ch_versions = ch_versions.mix(SHOVILL.out.versions())
+    ch_versions = ch_versions.mix(SHOVILL.out.versions)
 
     //
     // PBP_TYPER: type penicillin binding proteins
     //
-    PBP_TYPER (
-        // tuple val(meta), path(fasta)
-        // path(db)
-        SHOVILL.out.contigs
-    )
+    // PBP_TYPER (
+    //     SHOVILL.out.contigs,
+    //     params.pbp_database
+    // )
+    // ch_versions = ch_versions.mix(PBP_TYPER.out.versions)
+
+    //
+    // Renaming channel
+    //
+    ch_emm_typer_input = SHOVILL.out.contigs
+        .filter{it ->
+        it }
+        .combine(summfle_script)
 
     //
     // EMM_TYPER: type emm gene
     //
     EMM_TYPER (
         // tuple val(meta), file(contigs), file(script)
-        SHOVILL.out.contigs
+        ch_emm_typer_input
     )
+    ch_versions = ch_versions.mix(EMM_TYPER.out.versions)
+
 
     emit:
     versions = ch_versions
