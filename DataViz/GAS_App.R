@@ -17,7 +17,8 @@ tree <- read.tree("GAS_tree.nwk")
 # Identify columns to use for the overview dropdown 
 # (Excluding ID and coordinate columns)
 genotypic_features <- names(data)[!names(data) %in% c("Sample", "Total_Bases", "N50", "Longest_Contig", "Contig_Num")]
-# report_files <- list.files("html_reports", pattern = "\\.html$", full.names = TRUE)
+# HTML files 
+report_files <- list.files("html_reports", pattern = "\\.html$", full.names = TRUE)
 ui <- dashboardPage(
   dashboardHeader(title = "Group A Strep Surveillance"),
   
