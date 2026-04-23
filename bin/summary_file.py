@@ -1,76 +1,57 @@
 #!/bin/python3
 
-##########################################
-# written by Erin Young                  #
-# for creating summary files with the    #
-# sample id for Grandeur                 #
-##########################################
-
 import os
 import sys
+import logging
+import argparse
 
-out = sys.argv[2]
-spl = sys.argv[4]
+logging.basicConfig(level = logging.DEBUG, format = '%(levelname)s : %(message)s')
 
-if not os.path.exists(sys.argv[1]):
-    print("File " + sys.argv[1] + " does not exist. Exiting.")
-    exit()
+def summarize_output(report, output_file, sample_name):
 
-coms = 0
-tabs = 0
-with open(sys.argv[1]) as file:
-    first_line = file.readline()
-    coms = first_line.count(',')
-    tabs = first_line.count('\t')
-
-if tabs > coms:
-    delim = '\t'
-    print("Predicting tab delimited")
-else:
-    delim = ','
-    print("Predicting comma delimited")
-
-with open(sys.argv[1], 'r') as file:
-    lines = file.readlines()
-    for line in lines:
-        print(line)
-        print(line.split(delim))
-
-outfile = open(sys.argv[2], "w")
-
-final_delim = ','
-header = 'shouldntexist'
-
-# TODO: turn this into a dict
-if sys.argv[3] == 'mlst':
-    final_delim = '\t'
-    header = 'PubMLST'
-    outfile.write('sample\tfilename\tmatching PubMLST scheme\tST\tID1\tID2\tID3\tID4\tID5\tID6\tID7\tID8\tID9\tID10\tID11\tID12\tID13\tID14\tID15\n')
-elif sys.argv[3] == 'shigatyper':
-    final_delim = '\t'
-    header      = 'Number'
-elif sys.argv[3] == 'kleborate':
-    final_delim = '\t'
-    header = 'largest_contig'
-elif sys.argv[3] == 'plasmidfinder' :
-    final_delim = '\t'
-    header = 'Accession number'
-elif sys.argv[3] == 'emmtyper':
-    outfile.write('sample\tIsolate name\tNumber of BLAST hits\tNumber of clusters\tPredicted emm-type\tPosition(s)\tPossible emm-like alleles\temm-like position(s)\tEMM cluster\n')
-    final_delim = '\t'
     header = 'Number of BLAST hits'
-elif sys.argv[3] == 'serotypefinder':
-    final_delim = '\t'
-    header = 'HSP length'
 
-print("Using final delim " + final_delim + " with sample " + spl + " for " + sys.argv[3])
+    with open(report, 'r') as inp, open(output_file, 'w') as out:
 
-with open(sys.argv[1]) as file:
-    lines = file.readlines()
-    for line in lines:
-        if header in line:
-            replace = line.replace(delim, final_delim)
-            outfile.write('sample' + final_delim + replace)
-        else:
-            replace = line.replace(delim, final_delim)
-            outfile.write(spl + final_delim + replace)
+        out.write('sample\tIsolate name\tNumber of BLAST hits\tNumber of clusters\tPredicted emm-type\tPosition(s)\tPossible emm-like alleles\temm-like position(s)\tEMM cluster\n')
+        lines = inp.readlines()
+
+        for each_line in lines:
+            logging.debug(f"Processing line: {each_line}")
+            if header in each_line:
+                pass
+            else:
+                out.write(sample_name + '\t' + each_line)
+
+class SummaryScript(argparse.ArgumentParser):
+
+    def error(self, message):
+        self.print_help()
+        sys.stderr.write(f'\nERROR DETECTED: {message}\n')
+
+        sys.exit(1)
+
+if __name__ == "__main__":
+    parser = SummaryScript(prog = 'Transcribes emmtype results',
+        description='A script to summarize emmtype',
+        epilog='Use with summary_file.py '
+        )
+    parser.add_argument('-t', '--txt_file',
+        help='Should be txt file: ${prefix}_emmtyper.txt'
+        )
+    parser.add_argument('-o', '--output_file',
+        help='Location to output results: emmtyper/${prefix}'
+        )
+    parser.add_argument('-s', '--sample_name',
+        help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.'
+        )
+
+    logging.debug("Run parser to call arguments downstream")
+    args = parser.parse_args()
+
+    logging.info("Summarizing emmtype results")
+    if not os.path.exists(args.txt_file):
+        logging.error(f"File {args.txt_file} does not exist. Exiting.")
+        sys.exit(1)
+
+    summarize_output(args.txt_file, args.output_file, args.sample_name)
