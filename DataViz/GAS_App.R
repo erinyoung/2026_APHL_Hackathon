@@ -17,7 +17,7 @@ tree <- read.tree("GAS_tree.nwk")
 # Identify columns to use for the overview dropdown 
 # (Excluding ID and coordinate columns)
 genotypic_features <- names(data)[!names(data) %in% c("Sample", "Total_Bases", "N50", "Longest_Contig", "Contig_Num")]
-
+# report_files <- list.files("html_reports", pattern = "\\.html$", full.names = TRUE)
 ui <- dashboardPage(
   dashboardHeader(title = "Group A Strep Surveillance"),
   
@@ -26,7 +26,8 @@ ui <- dashboardPage(
       menuItem("Overview", tabName = "overview", icon = icon("chart-bar")),
       menuItem("Map Visualization", tabName = "map", icon = icon("map")),
       menuItem("Phylogeny", tabName = "phylo", icon = icon("tree")),
-      menuItem("Genomic Data", tabName = "data", icon = icon("dna"))
+      menuItem("Genomic Data", tabName = "data", icon = icon("dna")),
+      menuItem("fastp_data", tabName = "QC", icon = icon("chart-bar))
     ),
     hr(),
     # FEATURE SELECTION DROPDOWN
@@ -38,7 +39,9 @@ ui <- dashboardPage(
     
     checkboxGroupInput("filter_sir", "Filter by Penicillin SIR:",
                        choices = unique(data$WGS_PEN_SIR),
-                       selected = unique(data$WGS_PEN_SIR))
+                       selected = unique(data$WGS_PEN_SIR)),
+
+    selectInput("report", "Choose report", choices = basename(report_files))
   ),
   
   dashboardBody(
@@ -85,7 +88,8 @@ ui <- dashboardPage(
 #  )
 #), 
       # UI
-htmlOutput("multiqc_frame")
+# htmlOutput("multiqc_frame")
+  uiOutput("report_ui")
       ),
     )
   )
@@ -166,9 +170,13 @@ server <- function(input, output, session) {
   })
 
   # Server
-output$multiqc_frame <- renderUI({
-  report_html <- readLines("DataViz/www/multiqc_report.html", warn = FALSE)
-  HTML(report_html)
+# output$multiqc_frame <- renderUI({
+ # report_html <- readLines("DataViz/www/multiqc_report.html", warn = FALSE)
+ # HTML(report_html)
+ output$report_ui <- renderUI({
+    req(input$report)
+    file <- file.path("DataViz/www/.html$", input$report)
+    HTML(includeHTML(file))
 })
 }
 
