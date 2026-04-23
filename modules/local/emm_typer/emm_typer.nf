@@ -23,7 +23,6 @@ process EMM_TYPER {
     mkdir -p emmtyper logs/${task.process}
     log_file=logs/${task.process}/${prefix}.${workflow.sessionId}.log
 
-    # time stamp + capturing tool versions
     PATH=/opt/conda/envs/emmtyper/bin:\$PATH
     export PATH
 
@@ -43,7 +42,7 @@ process EMM_TYPER {
       | tee -a \$log_file \\
       > ${prefix}_emmtyper.txt
 
-    python3 ${script} ${prefix}_emmtyper.txt emmtyper/${prefix}_emmtyper.txt emmtyper ${prefix}
+    python3 ${script} -t ${prefix}_emmtyper.txt -o emmtyper/${prefix}_emmtyper.tsv -s ${prefix}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
