@@ -4,12 +4,12 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 // Subworkflows
-include { PBP_EMM               } from '../subworkflows/local/pbp_emm'
-// include { VIRULENCE_ANALYSIS    } from '../subworkflows/local/virulence'
+include { EMM_MLST                } from '../subworkflows/local/emm_mlst'
 
 // Modules
 include { REJECTED_SAMPLES       } from '../modules/local/rejected_samples/rejected_samples'
 include { FASTP                  } from '../modules/local/fastp/fastp'
+include { QUAST                  } from '../modules/local/quast/quast'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -135,12 +135,12 @@ workflow GAS {
 
     // // SUBWORKFLOW: pbp and emm typing
 
-    PBP_EMM (
+    EMM_MLST (
         ch_all_reads,
         ch_summfle_script
     )
 
-    PBP_EMM
+    EMM_MLST
         .out
         .versions
         .mix(ch_versions)
