@@ -4,13 +4,12 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 // Subworkflows
-include { EMM_MLST                } from '../subworkflows/local/emm_mlst'
-
+include { EMM_MLST               } from '../subworkflows/local/emm_mlst'
 // Modules
 include { REJECTED_SAMPLES       } from '../modules/local/rejected_samples/rejected_samples'
 include { FASTP                  } from '../modules/local/fastp/fastp'
-include { QUAST                  } from '../modules/local/quast/quast'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+// Multiqc is just the total output
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -40,7 +39,6 @@ workflow GAS {
     //
     // Removing Empty Samples: set up to be healthomics compatible
     //
-
     input_samples
         .branch{ meta, _file ->
             single_end: meta.single_end
@@ -125,6 +123,17 @@ workflow GAS {
             ch_input_reads.sample.map { meta, file -> [ meta + [is_ntc: false], file ] }
         )
         .set{ ch_all_reads }
+
+    //
+    // Determining fasta input: either from params or from random file generation
+    //
+    if (params.fasta == "random") {
+        ch_fasta = file(params.random_file, checkIfExists:true)
+    }
+    else {
+        ch_fasta = file(params.fasta, checkIfExists:true)
+    }
+
     //
     // FASTP on raw reads
     //
@@ -133,11 +142,15 @@ workflow GAS {
     )
     ch_versions = ch_versions.mix(FASTP.out.versions)
 
-    // // SUBWORKFLOW: pbp and emm typing
-
+    //
+    // SUBWORKFLOW: EMM typing amd MLST
+    //
     EMM_MLST (
         ch_all_reads,
-        ch_summfle_script
+        ch_summfle_script,
+        ch_fasta,
+        params.add_reference,
+        input_samples
     )
 
     EMM_MLST
