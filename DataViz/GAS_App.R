@@ -9,7 +9,7 @@ library(DT)
 library(plotly)
 library(ggtree)
 library(ape)
-library(htmltools)
+library(htmltools) # For multiqc reports
 
 # Load the fictional dataset
 data <- read.csv("Example_GAS_Genomic_Data.csv")
