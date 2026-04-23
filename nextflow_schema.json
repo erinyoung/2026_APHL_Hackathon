@@ -205,5 +205,10 @@
         {
             "$ref": "#/$defs/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "minimum_reads": {
+            "type": "string"
+        }
+    }
 }
