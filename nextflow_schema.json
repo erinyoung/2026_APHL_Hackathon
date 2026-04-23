@@ -36,11 +36,6 @@
                     "type": "string",
                     "fa_icon": "fas fa-bars"
                 },
-                "pbp_database": {
-                    "type": "string",
-                    "default": "/home/gunawaea/Documents/tools/Group4/assets/GAS_Reference_DB/GAS_bLactam_Ref.fasta",
-                    "fa_icon": "fas fa-align-justify"
-                },
                 "multiqc_title": {
                     "type": "string",
                     "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
@@ -207,8 +202,16 @@
         }
     ],
     "properties": {
-        "minimum_reads": {
-            "type": "string"
+        "parsnp_partition": {
+            "type": "string",
+            "default": "--no-partition"
+        },
+        "random_file": {
+            "type": "string",
+            "default": "/home/gunawaea/Documents/tools/Group4/assets/NO_FILE"
+        },
+        "add_reference": {
+            "type": "boolean"
         }
     }
 }
