@@ -9,26 +9,6 @@ import pandas as pd
 
 logging.basicConfig(level = logging.INFO, format = '%(levelname)s : %(message)s')
 
-def parse_args(args=None):
-	Description='Compares the samples input in the pipeline to the samples that exit parsnp'
-	Epilog='Usage: python3 compare_io.py <SAMPLESHEET> <LOG>'
-
-	parser = argparse.ArgumentParser(description=Description, epilog=Epilog)
-	parser.add_argument('input_file',
-		help='Samplesheet.valid.csv with all the samples denoted.')
-	parser.add_argument('output_file',
-		help='Aligner log output file to compare input samples to.')
-
-	return parser.parse_args(args)
-
-def create_list_of_input(samplesheet):
-
-	logging.debug("Setting up samplesheet dataframe which contains all samples.")
-	samplesheet_df = pd.read_csv(samplesheet)
-	all_samples = samplesheet_df['sample'].tolist()
-
-	return all_samples
-
 def check_parsnp_file(parsnp_log_file, input_list):
 
 	logging.debug("Creating empty list to hold samples that were not present in parsnp file")
@@ -50,15 +30,46 @@ def check_parsnp_file(parsnp_log_file, input_list):
 
 	return not_present_list
 
-def main(args=None):
-	args = parse_args(args)
+class CompileResults(argparse.ArgumentParser):
 
-	total_list = create_list_of_input(args.input_file)
-	not_present_list = check_parsnp_file(args.output_file, total_list)
+    def error(self, message):
+        self.print_help()
+        sys.stderr.write(f'\nERROR DETECTED: {message}\n')
 
-	df = pd.DataFrame({'Sample': total_list})
-	df['excluded_from_analysis'] = df['Sample'].apply(lambda x: 'Yes' if x in not_present_list else 'No')
-	df.to_csv('sample_exclusion_status.csv', index=False)
+        sys.exit(1)
 
 if __name__ == "__main__":
-	sys.exit(main())
+
+    parser = CompileResults(prog = 'Ensures proper number of samples exit parsnp',
+        description = "Compares the samples input in the pipeline to the samples that exit parsnp.",
+        epilog = "Usage: python3 compare_io.py <SAMPLESHEET_NUMBER> <LOG>"
+        )
+    parser.add_argument(
+        "-s",
+        "--sample_list",
+		nargs="*",
+		required=True,
+        help="List of samples in the input file."
+    )
+    parser.add_argument(
+        "-l",
+        "--log_file",
+		required=True,
+        help="Aligner log output file to compare input samples to.",
+    )
+
+    logging.debug("Run parser to call arguments downstream")
+    args = parser.parse_args()
+
+    logging.debug("Splitting sample list into a list of individual sample names")
+    string = ''.join(args.sample_list)
+    filtered = string.strip("[]")
+    total_list = filtered.split(",")
+
+    logging.debug("Checking parsnp log file to see which samples were not present in the parsnp output")
+    not_present_list = check_parsnp_file(args.log_file, total_list)
+
+    logging.debug("Creating dataframe to hold sample names and whether they were present in parsnp output or not")
+    df = pd.DataFrame({'Sample': total_list})
+    df['excluded_from_analysis'] = df['Sample'].apply(lambda x: 'Yes' if x in not_present_list else 'No')
+    df.to_csv('sample_exclusion_status.csv', index=False)
