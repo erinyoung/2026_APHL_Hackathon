@@ -1,13 +1,15 @@
 include { SHOVILL                   } from '../../modules/local/shovill/shovill'
 include { EMM_TYPER                 } from '../../modules/local/emm_typer/emm_typer'
 include { MLST                      } from '../../modules/local/mlst/mlst'
+include { SKA2                      } from '../../modules/local/ska2/ska2'
 include { PARSNP                    } from '../../modules/local/parsnp/parsnp'
 include { QUAST                     } from '../../modules/local/quast/quast'
 include { QUAST_SUMMARY             } from '../../modules/local/quast_summary'
 include { PARSE_PARSNP_ALIGNER_LOG  } from '../../modules/local/parse_parsnp_aligner_log'
 include { REMOVE_REFERENCE          } from '../../modules/local/remove_reference'
 include { COMPARE_IO                } from '../../modules/local/compare_io'
-include { IQTREE                    } from '../../modules/local/iqtree/iqtree'
+include { IQTREE as PAR             } from '../../modules/local/iqtree/iqtree'
+include { IQTREE as SKA             } from '../../modules/local/iqtree/iqtree'
 include { SNPDISTS                  } from '../../modules/local/snpdists/snpdists'
 
 
@@ -50,6 +52,13 @@ workflow EMM_MLST {
         .collect()
         .flatten()
         .collect()
+
+    //
+    // SKA2
+    //
+    SKA2(
+        ch_parsnp
+    )
 
     //
     // PARSNP: perform core genome alignment
@@ -102,11 +111,19 @@ workflow EMM_MLST {
     //
     // IQTREE
     //
-    IQTREE (
+    PAR (
         PARSNP.out.mblocks,
         ch_for_count
     )
-    ch_versions = ch_versions.mix(IQTREE.out.versions)
+    ch_versions = ch_versions.mix(PAR.out.versions)
+
+    //
+    // IQTREE for SKA2 alignment
+    //
+    SKA (
+        SKA2.out.aln,
+        ch_for_count
+    )
 
     //
     // SNPDISTS
@@ -150,7 +167,7 @@ workflow EMM_MLST {
 
 
     emit:
-    phylogeny    =      IQTREE.out.phylogeny
+    phylogeny    =      PAR.out.phylogeny
     tsv          =      SNPDISTS.out.tsv
     aligner_log  =      PARSE_PARSNP_ALIGNER_LOG.out.aligner_log
     excluded     =      COMPARE_IO.out.excluded
