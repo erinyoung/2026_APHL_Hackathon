@@ -23,6 +23,7 @@ workflow EMM_MLST {
     main:
 
     ch_versions = channel.empty()
+    ch_for_mblocks = channel.empty()
 
     //
     // SHOVILL: assemble reads into contigs
@@ -60,14 +61,13 @@ workflow EMM_MLST {
     )
 
     //
-    //Remove reference
+    // Remove reference
     //
-    if (!add_reference) {
+    if (add_reference == false) {
 
-        REMOVE_REFERENCE {
+        ch_for_mblocks = REMOVE_REFERENCE {
             PARSNP.out.mblocks
         }
-        .set{ ch_for_mblocks }
     } else {
         ch_for_mblocks = PARSNP.out.mblocks
     }
@@ -87,11 +87,15 @@ workflow EMM_MLST {
         add_reference
     )
 
+    ch_compare = samplesheet
+        .map { meta, _reads -> meta.id }
+        .collect()
+
     //
     // COMPARE_IO
     //
     COMPARE_IO (
-        samplesheet,
+        ch_compare,
         PARSE_PARSNP_ALIGNER_LOG.out.aligner_log
     )
 
