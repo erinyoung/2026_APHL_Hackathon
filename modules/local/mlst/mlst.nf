@@ -7,7 +7,7 @@ process MLST {
   tuple val(meta), file(contig)
 
   output:
-  tuple val(meta), file("mlst/*_mlst.txt"), emit: mlst_files, optional: true
+  tuple val(meta), file("mlst/*_mlst.tsv"), emit: mlst_files, optional: true
   path "versions.yml", emit: versions
 
   when:
