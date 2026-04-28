@@ -27,7 +27,7 @@ process MLST {
         --scheme spyogenes \
         --novel ${prefix}_novel_mlst_alleles.fasta \
         ${contig} \
-        >> ${prefix}_ts_mlst.tsv
+        >> mlst/${prefix}_ts_mlst.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
