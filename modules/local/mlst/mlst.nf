@@ -20,7 +20,7 @@ process MLST {
     mkdir -p mlst
 
     #create output header
-    echo -e "Filename\tScheme\tSequence_Type\tgki\tgtr\tmurI\tmutS\trecP\txpt\tyqiL" > ${prefix}_ts_mlst.tsv
+    echo -e "Filename\tScheme\tSequence_Type\tgki\tgtr\tmurI\tmutS\trecP\txpt\tyqiL" > mlst/${prefix}_ts_mlst.tsv
 
     mlst \
         --nopath \
